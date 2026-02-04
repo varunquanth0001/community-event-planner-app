@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Community Event Planner - Create, manage, and RSVP to community events with ease">
+    <meta name="keywords" content="events, community, planner, RSVP, social events">
+    <title>Community Event Planner | Organize & Discover Events</title>
+
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Event Planner">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Community Event Planner</h1>
+            <p>Discover, Create, and Join Amazing Events in Your Community</p>
+
+            <div class="user-controls">
+                <div class="user-selector">
+                    <label for="currentUser" style="color: var(--text-secondary); margin-right: 0.5rem;">Current
+                        User:</label>
+                    <select id="currentUser">
+                        <option value="varun">Varun (Admin)</option>
+                        <option value="alice">Alice Johnson</option>
+                        <option value="bob">Bob Smith</option>
+                        <option value="charlie">Charlie Davis</option>
+                        <option value="diana">Diana Martinez</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary" id="installBtn" style="display: none;">📱 Install App</button>
+                <button class="btn btn-primary" id="createEventBtn">+ Create Event</button>
+            </div>
+        </header>
+
+        <!-- Search and Filters -->
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput"
+                    placeholder="🔍 Search events by title, location, or description...">
+            </div>
+
+            <div class="filter-group">
+                <select id="categoryFilter">
+                    <option value="all">All Categories</option>
+                    <option value="social">Social</option>
+                    <option value="professional">Professional</option>
+                    <option value="sports">Sports</option>
+                    <option value="arts">Arts</option>
+                    <option value="education">Education</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <select id="dateFilter">
+                    <option value="all">All Dates</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="thisWeek">This Week</option>
+                    <option value="thisMonth">This Month</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Events Grid -->
+        <div id="eventsGrid" class="events-grid">
+            <!-- Events will be dynamically inserted here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state hidden">
+            <h3>No Events Found</h3>
+            <p>Try adjusting your search or filters, or create a new event!</p>
+        </div>
+    </div>
+
+    <!-- Create/Edit Event Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Create Event</h2>
+                <button class="close-btn" id="closeEventModal">&times;</button>
+            </div>
+
+            <form id="eventForm">
+                <input type="hidden" id="eventId">
+
+                <div class="form-group">
+                    <label for="eventTitle">Event Title *</label>
+                    <input type="text" id="eventTitle" required placeholder="Enter event title">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventCategory">Category *</label>
+                    <select id="eventCategory" required>
+                        <option value="social">Social</option>
+                        <option value="professional">Professional</option>
+                        <option value="sports">Sports</option>
+                        <option value="arts">Arts</option>
+                        <option value="education">Education</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDate">Date *</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventTime">Time *</label>
+                    <input type="time" id="eventTime" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventLocation">Location *</label>
+                    <input type="text" id="eventLocation" required placeholder="Enter event location">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Description *</label>
+                    <textarea id="eventDescription" required placeholder="Describe your event..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelEventBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveEventBtn">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Detail Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailTitle">Event Details</h2>
+                <button class="close-btn" id="closeDetailModal">&times;</button>
+            </div>
+
+            <div id="eventDetailContent" class="event-detail">
+                <!-- Event details will be dynamically inserted here -->
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-outline" id="closeDetailBtn">Close</button>
+                <button class="btn btn-secondary" id="rsvpBtn" style="display: none;">RSVP</button>
+                <button class="btn btn-outline" id="editEventBtn" style="display: none;">Edit Event</button>
+                <button class="btn btn-danger" id="deleteEventBtn" style="display: none;">Delete Event</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch((err) => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'inline-block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to install prompt: ${outcome}`);
+                deferredPrompt = null;
+                installBtn.style.display = 'none';
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA installed successfully');
+            installBtn.style.display = 'none';
+        });
+    </script>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
