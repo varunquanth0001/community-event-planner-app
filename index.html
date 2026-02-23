@@ -40,6 +40,9 @@
                     </select>
                 </div>
                 <button class="btn btn-secondary" id="installBtn" style="display: none;">📱 Install App</button>
+                <button class="btn btn-danger" id="logoutBtn" onclick="handleLogout()"
+                    style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 0.75rem; cursor: pointer; font-weight: 600;">🚪
+                    Logout</button>
                 <button class="btn btn-primary" id="createEventBtn">+ Create Event</button>
             </div>
         </header>
@@ -198,6 +201,17 @@
             console.log('PWA installed successfully');
             installBtn.style.display = 'none';
         });
+    </script>
+
+    <script>
+        // Logout Handler
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('event_planner_session');
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        }
     </script>
 
     <script src="app.js"></script>
