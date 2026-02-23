@@ -23,8 +23,24 @@
 <body>
     <!-- Auth Check - Redirect to login if not authenticated -->
     <script>
-        if (!localStorage.getItem('event_planner_session')) {
+        const sessionData = localStorage.getItem('event_planner_session');
+        if (!sessionData) {
             window.location.href = 'login.html';
+        } else {
+            // Set currentUser from session for EventManager
+            const session = JSON.parse(sessionData);
+            localStorage.setItem('currentUser', session.id);
+
+            // Display user info after DOM loads
+            document.addEventListener('DOMContentLoaded', () => {
+                const userAvatar = document.getElementById('userAvatar');
+                const userName = document.getElementById('userName');
+                if (userName) userName.textContent = session.name;
+                if (userAvatar && session.avatar) {
+                    userAvatar.textContent = session.avatar.initial;
+                    userAvatar.style.backgroundColor = session.avatar.color;
+                }
+            });
         }
     </script>
 
@@ -35,16 +51,11 @@
             <p>Discover, Create, and Join Amazing Events in Your Community</p>
 
             <div class="user-controls">
-                <div class="user-selector">
-                    <label for="currentUser" style="color: var(--text-secondary); margin-right: 0.5rem;">Current
-                        User:</label>
-                    <select id="currentUser">
-                        <option value="varun">Varun (Admin)</option>
-                        <option value="alice">Alice Johnson</option>
-                        <option value="bob">Bob Smith</option>
-                        <option value="charlie">Charlie Davis</option>
-                        <option value="diana">Diana Martinez</option>
-                    </select>
+                <div class="user-profile" id="userProfile" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div id="userAvatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 1rem;">
+                    </div>
+                    <span id="userName" style="color: var(--text-primary); font-weight: 600;"></span>
                 </div>
                 <button class="btn btn-secondary" id="installBtn" style="display: none;">📱 Install App</button>
                 <button class="btn btn-danger" id="logoutBtn" onclick="handleLogout()"

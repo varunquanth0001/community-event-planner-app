@@ -18,14 +18,15 @@ class Event {
 class EventManager {
     constructor() {
         this.events = this.loadEvents();
-        this.currentUser = localStorage.getItem('currentUser') || 'varun';
+        // Get current user from session
+        const session = JSON.parse(localStorage.getItem('event_planner_session') || '{}');
+        this.currentUser = session.id || localStorage.getItem('currentUser') || 'guest';
         this.currentEventId = null;
         this.init();
     }
 
     init() {
         this.setupEventListeners();
-        this.loadUserPreference();
         this.renderEvents();
 
         // Add some sample events if none exist
