@@ -21,6 +21,13 @@
 </head>
 
 <body>
+    <!-- Auth Check - Redirect to login if not authenticated -->
+    <script>
+        if (!localStorage.getItem('event_planner_session')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+
     <div class="container">
         <!-- Header -->
         <header class="header">
